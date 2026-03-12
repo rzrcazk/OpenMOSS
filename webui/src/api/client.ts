@@ -189,6 +189,10 @@ export const adminAgentApi = {
     api.get<AdminPageResponse<AdminAgentItem>>('/admin/agents', { params }),
   get: (agentId: string) =>
     api.get<AdminAgentDetail>(`/admin/agents/${agentId}`),
+  updateProfile: (
+    agentId: string,
+    data: { name?: string; description?: string },
+  ) => api.put(`/admin/agents/${agentId}`, data),
   updateStatus: (agentId: string, status: string) =>
     api.put(`/admin/agents/${agentId}/status`, { status }),
   scoreLogs: (agentId: string, params?: { page?: number; page_size?: number; sub_task_id?: string; sort_order?: string }) =>

@@ -25,6 +25,7 @@ import {
     KeyRound,
     Copy,
     Check,
+    Pencil,
 } from 'lucide-vue-next'
 
 // ─── 状态 ───
@@ -234,6 +235,43 @@ const showNewKeyDialog = ref(false)
 const newApiKey = ref('')
 const resettingKey = ref(false)
 const keyCopied = ref(false)
+
+// 改名/改描述
+const showEditDialog = ref(false)
+const editName = ref('')
+const editDescription = ref('')
+const editError = ref('')
+const savingEdit = ref(false)
+
+function openEditDialog() {
+    if (!selectedAgent.value) return
+    editName.value = selectedAgent.value.name
+    editDescription.value = selectedAgent.value.description ?? ''
+    editError.value = ''
+    showEditDialog.value = true
+}
+
+async function handleSaveEdit() {
+    if (!selectedAgentId.value) return
+    const name = editName.value.trim()
+    if (!name) { editError.value = '名称不能为空'; return }
+    savingEdit.value = true
+    editError.value = ''
+    try {
+        await adminAgentApi.updateProfile(selectedAgentId.value, {
+            name,
+            description: editDescription.value,
+        })
+        showEditDialog.value = false
+        void loadAgentDetail(selectedAgentId.value)
+        void loadAgents()
+    } catch (err: unknown) {
+        const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+        editError.value = msg ?? '保存失败，请重试'
+    } finally {
+        savingEdit.value = false
+    }
+}
 
 async function handleResetKey() {
     if (!selectedAgentId.value) return
@@ -521,6 +559,10 @@ async function copyNewKey() {
                                 操作
                             </div>
                             <div class="flex flex-wrap gap-2">
+                                <Button variant="outline" size="sm" class="gap-1.5" @click="openEditDialog">
+                                    <Pencil class="h-3.5 w-3.5" />
+                                    编辑名称/描述
+                                </Button>
                                 <Button variant="outline" size="sm"
                                     class="gap-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50"
                                     @click="showResetKeyConfirm = true">
@@ -542,6 +584,40 @@ async function copyNewKey() {
             </div>
         </div>
     </TooltipProvider>
+
+    <!-- 编辑名称/描述弹窗 -->
+    <Teleport to="body">
+        <Transition name="fade">
+            <div v-if="showEditDialog" class="fixed inset-0 z-50 flex items-center justify-center">
+                <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showEditDialog = false" />
+                <div
+                    class="relative z-10 w-full max-w-sm rounded-xl border bg-background p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                    <h2 class="text-lg font-semibold mb-4">编辑 Agent 信息</h2>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs text-muted-foreground mb-1 block">名称</label>
+                            <Input v-model="editName" placeholder="Agent 名称" maxlength="100" />
+                        </div>
+                        <div>
+                            <label class="text-xs text-muted-foreground mb-1 block">描述</label>
+                            <textarea v-model="editDescription" placeholder="职责简要（可选）"
+                                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+                                rows="3" />
+                        </div>
+                        <p v-if="editError" class="text-xs text-rose-500">{{ editError }}</p>
+                    </div>
+                    <div class="mt-5 flex gap-3">
+                        <Button variant="outline" class="flex-1" :disabled="savingEdit"
+                            @click="showEditDialog = false">取消</Button>
+                        <Button class="flex-1" :disabled="savingEdit" @click="handleSaveEdit">
+                            <Loader2 v-if="savingEdit" class="h-4 w-4 animate-spin mr-1" />
+                            保存
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+    </Teleport>
 
     <!-- 重置 API Key 确认弹窗 -->
     <Teleport to="body">

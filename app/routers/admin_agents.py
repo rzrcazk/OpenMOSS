@@ -18,6 +18,7 @@ from app.schemas.admin_agent import (
     AdminAgentResetKeyResponse,
     AdminAgentScoreLogPageResponse,
     AdminAgentStatusUpdateRequest,
+    AdminAgentUpdateRequest,
     AdminAgentWriteResponse,
 )
 from app.services import admin_agent_query_service, agent_service
@@ -183,6 +184,36 @@ async def list_admin_agent_request_logs(
         )
     except Exception as exc:
         _raise_admin_agent_query_error(exc)
+@router.put(
+    "/agents/{agent_id}",
+    response_model=AdminAgentWriteResponse,
+    summary="管理端更新 Agent 名称/描述",
+)
+async def update_admin_agent_profile(
+    agent_id: str,
+    req: AdminAgentUpdateRequest,
+    _: bool = Depends(verify_admin),
+    db: Session = Depends(get_db),
+):
+    """管理员更新 Agent 的名称或描述"""
+    try:
+        agent = agent_service.update_agent_profile(
+            db,
+            agent_id,
+            name=req.name,
+            description=req.description,
+        )
+    except Exception as exc:
+        _raise_admin_agent_write_error(exc)
+    else:
+        return AdminAgentWriteResponse(
+            id=agent.id,
+            name=agent.name,
+            role=agent.role,
+            description=agent.description,
+            status=agent.status,
+            total_score=agent.total_score,
+        )
 
 
 @router.put(

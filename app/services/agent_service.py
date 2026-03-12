@@ -67,6 +67,30 @@ def list_agents(db: Session, role: str = None, status: str = None) -> list:
 def get_agent_by_id(db: Session, agent_id: str) -> Agent:
     """根据 ID 获取 Agent"""
     return db.query(Agent).filter(Agent.id == agent_id).first()
+def update_agent_profile(
+    db: Session,
+    agent_id: str,
+    name: str | None = None,
+    description: str | None = None,
+) -> Agent:
+    """更新 Agent 名称/描述"""
+    agent = db.query(Agent).filter(Agent.id == agent_id).first()
+    if not agent:
+        raise ValueError(f"Agent {agent_id} 不存在")
+
+    if name:
+        # 防重复名
+        existing = db.query(Agent).filter(Agent.name == name, Agent.id != agent_id).first()
+        if existing:
+            raise ValueError(f"名称 '{name}' 已被注册")
+        agent.name = name
+
+    if description is not None:
+        agent.description = description
+
+    db.commit()
+    db.refresh(agent)
+    return agent
 
 
 def update_agent_status(db: Session, agent_id: str, status: str) -> Agent:

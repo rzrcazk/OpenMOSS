@@ -124,6 +124,11 @@ class AdminAgentStatusUpdateRequest(BaseModel):
     status: AgentStatus = Field(..., description="状态")
 
 
+class AdminAgentUpdateRequest(BaseModel):
+    name: Optional[str] = Field(None, description="Agent 名称", max_length=100)
+    description: Optional[str] = Field(None, description="职责简要")
+
+
 class AdminAgentWriteResponse(BaseModel):
     id: str
     name: str
