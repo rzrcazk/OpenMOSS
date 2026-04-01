@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import { setupApi, webuiApi } from '@/api/client'
-import type { WebUIVersionInfo } from '@/api/client'
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+import { setupApi, webuiApi } from '@/api/client';
+import type { WebUIVersionInfo } from '@/api/client';
 import {
   Sidebar,
   SidebarContent,
@@ -18,9 +18,9 @@ import {
   SidebarProvider,
   SidebarInset,
   SidebarTrigger,
-} from '@/components/ui/sidebar'
-import { Separator } from '@/components/ui/separator'
-import { Button } from '@/components/ui/button'
+} from '@/components/ui/sidebar';
+import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
   ListTodo,
@@ -35,25 +35,25 @@ import {
   AlertTriangle,
   X,
   Loader2,
-} from 'lucide-vue-next'
+} from 'lucide-vue-next';
 
-const router = useRouter()
-const route = useRoute()
-const auth = useAuthStore()
+const router = useRouter();
+const route = useRoute();
+const auth = useAuthStore();
 
-const showLogoutConfirm = ref(false)
-const showUrlMissing = ref(false)
+const showLogoutConfirm = ref(false);
+const showUrlMissing = ref(false);
 
 // WebUI 更新状态
-const webuiVersion = ref<WebUIVersionInfo | null>(null)
-const webuiUpdating = ref(false)
-const showUpdateBanner = ref(false)
+const webuiVersion = ref<WebUIVersionInfo | null>(null);
+const webuiUpdating = ref(false);
+const showUpdateBanner = ref(false);
 
 onMounted(async () => {
   try {
-    const { data } = await setupApi.status()
+    const { data } = await setupApi.status();
     if (data.initialized && !data.has_external_url) {
-      showUrlMissing.value = true
+      showUrlMissing.value = true;
     }
   } catch {
     // 静默失败
@@ -61,32 +61,32 @@ onMounted(async () => {
 
   // 检查 WebUI 更新
   try {
-    const { data } = await webuiApi.version()
-    webuiVersion.value = data
+    const { data } = await webuiApi.version();
+    webuiVersion.value = data;
     if (data.update_available) {
-      showUpdateBanner.value = true
+      showUpdateBanner.value = true;
     }
   } catch {
     // 静默失败
   }
-})
+});
 
 async function handleWebuiUpdate() {
-  webuiUpdating.value = true
+  webuiUpdating.value = true;
   try {
-    await webuiApi.update()
+    await webuiApi.update();
     // 更新成功，提示用户刷新
-    webuiVersion.value = null
-    showUpdateBanner.value = false
+    webuiVersion.value = null;
+    showUpdateBanner.value = false;
     // 延迟刷新
-    setTimeout(() => window.location.reload(), 1500)
+    setTimeout(() => window.location.reload(), 1500);
   } catch {
-    webuiUpdating.value = false
+    webuiUpdating.value = false;
   }
 }
 
 function dismissUpdateBanner() {
-  showUpdateBanner.value = false
+  showUpdateBanner.value = false;
 }
 
 const menuItems = [
@@ -98,11 +98,11 @@ const menuItems = [
   { title: '审查记录', icon: FileSearch, path: '/reviews' },
   { title: '提示词管理', icon: BookText, path: '/prompts' },
   { title: '系统设置', icon: Settings, path: '/settings' },
-]
+];
 
 function handleLogout() {
-  auth.logout()
-  router.push('/login')
+  auth.logout();
+  router.push('/login');
 }
 </script>
 

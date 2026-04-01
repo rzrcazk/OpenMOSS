@@ -1,12 +1,12 @@
-import { fileURLToPath, URL } from 'node:url'
-import { mkdirSync, writeFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { fileURLToPath, URL } from 'node:url';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import vueDevTools from 'vite-plugin-vue-devtools'
-import tailwindcss from '@tailwindcss/vite'
-import { version } from './package.json'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import vueDevTools from 'vite-plugin-vue-devtools';
+import tailwindcss from '@tailwindcss/vite';
+import { version } from './package.json';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -18,17 +18,17 @@ export default defineConfig({
     {
       name: 'webui-manifest',
       writeBundle() {
-        const outDir = resolve(__dirname, 'dist')
-        mkdirSync(outDir, { recursive: true })
+        const outDir = resolve(__dirname, 'dist');
+        mkdirSync(outDir, { recursive: true });
         const manifest = {
           version,
           buildTime: new Date().toISOString(),
-        }
+        };
         writeFileSync(
           resolve(outDir, 'webui-manifest.json'),
           JSON.stringify(manifest, null, 2),
-        )
-        console.log(`\n  📦 webui-manifest.json generated (v${version})\n`)
+        );
+        console.log(`\n  📦 webui-manifest.json generated (v${version})\n`);
       },
     },
   ],
@@ -53,4 +53,4 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
   },
-})
+});
