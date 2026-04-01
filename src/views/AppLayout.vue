@@ -40,6 +40,7 @@ import {
 const router = useRouter();
 const route = useRoute();
 const auth = useAuthStore();
+const appVersion = __VERSION__;
 
 const showLogoutConfirm = ref(false);
 const showUrlMissing = ref(false);
@@ -116,9 +117,12 @@ function handleLogout() {
             class="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground text-base font-bold shadow-[var(--shadow-sm)]">
             M
           </div>
-          <div>
+          <div class="flex flex-col justify-center">
             <div class="font-bold text-base tracking-tight">OpenMOSS</div>
-            <div class="text-[11px] text-muted-foreground/60">多 Agent 协作平台</div>
+            <div class="flex flex-col items-start gap-1 mt-0.5">
+              <span class="text-[11px] text-muted-foreground/60 leading-none">多 Agent 协作平台</span>
+              <span class="text-[9px] font-medium px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-200/60 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 leading-none">WebUI v{{ appVersion }}</span>
+            </div>
           </div>
         </div>
         <!-- 装饰线 -->
