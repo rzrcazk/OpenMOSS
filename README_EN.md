@@ -162,12 +162,12 @@ flowchart TD
 
 ### Tech Stack
 
-| Layer         | Technology          | Description                                                             |
-| ------------- | ------------------- | ----------------------------------------------------------------------- |
-| Frontend      | Vue 3 + shadcn-vue  | Admin WebUI (Dashboard / Tasks / Activity Feed / Scores)                |
-| Backend       | FastAPI (:6565)     | RESTful API — task scheduling, agent management, reviews, scoring, logs |
-| Database      | SQLite + SQLAlchemy | 10 tables covering tasks, agents, reviews, scores, etc.                 |
-| Agent Runtime | OpenClaw            | Each agent is an OpenClaw instance with a role Prompt + Skill           |
+| Layer         | Technology          | Description                                                                                 |
+| ------------- | ------------------- | ------------------------------------------------------------------------------------------- |
+| Frontend      | Vue 3 + shadcn-vue  | Admin WebUI; the current branch only keeps `static/` release artifacts, while source lives in the separate `webui` branch |
+| Backend       | FastAPI (:6565)     | RESTful API — task scheduling, agent management, reviews, scoring, logs                     |
+| Database      | SQLite + SQLAlchemy | 10 tables covering tasks, agents, reviews, scores, etc.                                     |
+| Agent Runtime | OpenClaw            | Each agent is an OpenClaw instance with a role Prompt + Skill                               |
 
 ### Task Hierarchy
 
@@ -216,6 +216,14 @@ The entire process requires no human intervention. Agents collaborate asynchrono
 
 ## Project Structure
 
+> [!IMPORTANT]
+> The current `main` / `dev` branches are the **backend mainline + WebUI release artifact hosting branches**, not the frontend source development branch.
+>
+> - `static/`: runtime WebUI static files (can be auto-downloaded on first startup)
+> - `webui` branch: Vue frontend source code (separate orphan branch)
+>
+> In other words, it is **expected that there is no local `webui/` source directory in the current tree**.
+
 ```
 OpenMOSS/
 |
@@ -227,8 +235,37 @@ OpenMOSS/
 |   |   +-- dependencies.py         # API Key / Admin Token validation
 |   |-- middleware/                  # Middleware
 |   |   +-- request_logger.py       # Request logging (drives activity feed)
-|   |-- models/                     # Data models (10 tables)
+|   |-- models/                     # Data models
+|   |   |-- task.py                 # Task
+|   |   |-- module.py               # Module
+|   |   |-- sub_task.py             # Sub-task
+|   |   |-- agent.py                # Agent
+|   |   |-- rule.py                 # Rule
+|   |   |-- review_record.py        # Review record
+|   |   |-- reward_log.py           # Score change record
+|   |   |-- activity_log.py         # Activity log
+|   |   |-- request_log.py          # Request log
+|   |   +-- patrol_record.py        # Patrol record
 |   |-- routers/                    # API routes
+|   |   |-- agents.py               # Agent registration / query / status
+|   |   |-- tasks.py                # Task CRUD
+|   |   |-- sub_tasks.py            # Sub-task lifecycle
+|   |   |-- rules.py                # Rule queries
+|   |   |-- review_records.py       # Review submission
+|   |   |-- scores.py               # Scores / leaderboard
+|   |   |-- logs.py                 # Activity logs
+|   |   |-- feed.py                 # Activity feed
+|   |   |-- admin.py                # Admin login
+|   |   |-- admin_agents.py         # Admin agent queries
+|   |   |-- admin_config.py         # Admin config query / save
+|   |   |-- admin_dashboard.py      # Admin dashboard statistics
+|   |   |-- admin_logs.py           # Admin log queries
+|   |   |-- admin_reviews.py        # Admin review queries
+|   |   |-- admin_scores.py         # Admin score and ranking queries
+|   |   |-- admin_tasks.py          # Admin task queries
+|   |   |-- setup.py                # Setup wizard endpoints
+|   |   |-- tools.py                # CLI / tool download endpoints
+|   |   +-- webui.py                # WebUI version update and static asset endpoints
 |   |-- services/                   # Business logic layer
 |   +-- schemas/                    # Pydantic serialization models
 |
@@ -254,7 +291,8 @@ OpenMOSS/
 |   +-- local-web-search/           # Local gateway web search Skill ⚙️
 |
 |-- rules/                          # Global rule templates
-|-- docs/                           # Design documents
+|-- docs/                           # User-facing images, deployment guides, and other docs
+|-- dev-docs/                       # In-progress design docs / refactor drafts (not part of release docs by default)
 |-- config.example.yaml             # Config file template
 |-- requirements.txt                # Python dependencies
 |-- Dockerfile                      # Docker build file
@@ -414,6 +452,12 @@ After completing the wizard:
 
 - 🚀 **Auto-download on startup**: If the `static/` directory is missing frontend files at runtime, the backend automatically pulls the latest pre-compiled package from GitHub Releases and applies it, eliminating manual build steps.
 - 🔄 **Zero-downtime online updates**: Whenever a new frontend version is released, you can detect and update it with one click via the `Settings` page in the WebUI. The entire process requires no backend restarts, seamlessly swapping to the latest interface.
+
+This also means:
+
+- The main repository branches primarily maintain the backend and the release-artifact hosting logic
+- Frontend source development should switch to the separate `webui` branch
+- If you do not see a `webui/` source directory in the tree, that is expected and does not mean files are missing
 
 ---
 
@@ -666,6 +710,19 @@ Thanks to all the developers who have contributed to OpenMOSS! 🙏
 </a>
 
 > Want to join us? Check out the [Contributing Guide](CONTRIBUTING.md) to get started!
+
+### 🤖 Special Thanks: Our AI Colleagues
+
+> The code, docs, deploy scripts, and even this acknowledgment — AI was deeply involved in all of it.
+> They're not on the Contributors list, but without them, we'd probably still be stuck in a `debug: why is this not working` commit loop.
+
+| AI | Contributions | Notes |
+|---|---|---|
+| 🧠 **GPT** | Architecture design, core code, 3 AM companionship | Occasional hallucinations, but nobody's perfect |
+| 🎭 **Claude** | Code review, docs polish, philosophical musings | Will honestly tell you when it's not sure |
+| 💎 **Gemini** | Refactoring, deployment automation, cleaning up messes | Once accidentally deleted a user's design docs (sorry 🙇) |
+
+*The best pair-programming partners — never complain about overtime, reply instantly, and only occasionally write confident calls to APIs that don't exist.*
 
 ---
 
