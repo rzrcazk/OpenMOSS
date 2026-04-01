@@ -12,6 +12,10 @@
 <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
 </p>
 
+<p align="center">
+  🇨🇳 简体中文 | 🌐 <a href="README_EN.md">English</a>
+</p>
+
 > **OpenMOSS 多 Agent 协作平台的前端管理界面。**
 >
 > 本分支为独立的 orphan 分支，与后端代码（`dev`/`main` 分支）分离，拥有独立的版本号和发布周期。
@@ -56,18 +60,19 @@ npm run build
 
 ## 📦 发布流程
 
-本分支通过 GitHub Actions 自动发布。推送 `webui-v*` 格式的 tag 即可触发：
+本项目提供了全自动的一键发布脚本，只需在项目根目录执行：
 
 ```bash
-# 1. 更新 package.json 中的 version
-npm version patch  # 或 minor / major
-
-# 2. 创建并推送 tag
-git tag webui-v$(node -p "require('./package.json').version")
-git push origin webui --tags
+npm run release
 ```
 
-CI 会自动：
+执行后脚本会自动：
+1. 询问要升级的版本号类型 (patch, minor, major)
+2. 更新 `package.json` 中的版本信息
+3. 自动生成形如 `webui-vX.Y.Z` 的 Git 标签 (Tag)
+4. 自动将代码和 Tag 推送到远端 `webui` 分支
+
+推送之后，GitHub Actions 会被自动触发，线上的 CI 会完成以下操作：
 1. 构建前端
 2. 生成 `webui-manifest.json`
 3. 打包为 `webui-dist.tar.gz`
@@ -86,7 +91,7 @@ OpenMOSS 后端会在以下时机自动检查并拉取最新 WebUI：
 
 ```bash
 cd /path/to/openmoss
-curl -fsSL https://github.com/w-xuefeng/OpenMOSS/releases/latest/download/webui-dist.tar.gz | tar xzf - -C static/
+curl -fsSL https://github.com/uluckyXH/OpenMOSS/releases/latest/download/webui-dist.tar.gz | tar xzf - -C static/
 ```
 
 ### 版本回滚
